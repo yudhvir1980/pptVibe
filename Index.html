@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Slide Design Quiz · Spot the Better Slide</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,800&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe9dc;
+    --paper-2:#e7dfcd;
+    --ink:#1a1814;
+    --ink-soft:#3a352d;
+    --rule:#c8bfa9;
+    --coral:#d8553b;
+    --coral-soft:#f1b9ad;
+    --moss:#3a6b4c;
+    --good:#3a6b4c;
+    --bad:#b53a2b;
+    --shadow: 0 30px 60px -30px rgba(26,24,20,.35), 0 6px 18px -8px rgba(26,24,20,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Inter', system-ui, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(216,85,59,.06), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(58,107,76,.06), transparent 40%);
+  }
+
+  /* ========= Top chrome ========= */
+  .chrome{
+    max-width:1280px; margin:0 auto;
+    padding:28px 40px 0;
+    display:flex; align-items:center; gap:24px;
+  }
+  .mark{
+    font-family:'Fraunces', serif; font-weight:600;
+    font-size:22px; letter-spacing:-.01em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .mark .dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--coral); display:inline-block;
+  }
+  .meta{
+    margin-left:auto;
+    display:flex; align-items:center; gap:24px;
+    font-family:'DM Mono', monospace; font-size:12px;
+    text-transform:uppercase; letter-spacing:.14em;
+    color:var(--ink-soft);
+  }
+  .meta .score b{ color:var(--ink); font-weight:600; }
+  .progress{
+    max-width:1280px; margin:18px auto 0;
+    padding:0 40px;
+    display:flex; gap:6px;
+  }
+  .progress span{
+    flex:1; height:3px; background:var(--rule); border-radius:2px;
+    overflow:hidden; position:relative;
+  }
+  .progress span.done{ background:var(--ink); }
+  .progress span.cur{ background:var(--ink); }
+  .progress span.cur::after{
+    content:""; position:absolute; inset:0; background:var(--coral);
+    transform-origin:left; animation:fill .5s ease forwards;
+  }
+  @keyframes fill{ from{transform:scaleX(0)} to{transform:scaleX(1)} }
+
+  /* ========= Stage ========= */
+  .stage{
+    max-width:1280px; margin:0 auto;
+    padding:32px 40px 64px;
+  }
+
+  .qhead{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:32px; margin-bottom:28px;
+  }
+  .qhead .left .eyebrow{
+    font-family:'DM Mono', monospace; font-size:12px;
+    letter-spacing:.18em; text-transform:uppercase;
+    color:var(--coral); margin-bottom:10px;
+  }
+  .qhead h1{
+    font-family:'Fraunces', serif;
+    font-weight:500; font-size:clamp(32px, 4.2vw, 52px);
+    line-height:1.05; letter-spacing:-.02em;
+    margin:0; max-width:18ch;
+  }
+  .qhead h1 em{
+    font-style:italic; color:var(--coral); font-weight:500;
+  }
+  .qhead .right{
+    text-align:right; max-width:340px;
+    font-size:14px; color:var(--ink-soft); line-height:1.5;
+  }
+  .qhead .right .principle{
+    display:inline-block;
+    border:1px solid var(--ink); border-radius:999px;
+    padding:6px 14px; font-family:'DM Mono', monospace;
+    font-size:11px; text-transform:uppercase; letter-spacing:.16em;
+    margin-bottom:10px; color:var(--ink);
+  }
+
+  /* ========= Slides ========= */
+  .pair{
+    display:grid; grid-template-columns: 1fr 1fr;
+    gap:28px; align-items:start;
+  }
+  .choice{
+    cursor:pointer; user-select:none;
+    display:flex; flex-direction:column;
+    transition: transform .25s ease;
+  }
+  .choice:hover{ transform:translateY(-3px); }
+  .choice .label{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:12px;
+    font-family:'DM Mono', monospace; font-size:12px;
+    text-transform:uppercase; letter-spacing:.18em;
+    color:var(--ink-soft);
+  }
+  .choice .label .key{
+    width:26px;height:26px; border:1px solid var(--ink);
+    display:grid; place-items:center; border-radius:6px;
+    font-weight:600; color:var(--ink); background:var(--paper);
+  }
+  .choice .label .verdict{ margin-left:auto; opacity:0; transition:opacity .25s; }
+  .choice.picked .label .verdict{ opacity:1; }
+  .choice.correct .label{ color:var(--good); }
+  .choice.wrong .label{ color:var(--bad); }
+  .choice.correct .label .key{ background:var(--good); color:#fff; border-color:var(--good); }
+  .choice.wrong .label .key{ background:var(--bad); color:#fff; border-color:var(--bad); }
+
+  .slide-wrap{
+    position:relative; aspect-ratio:16/9;
+    border-radius:6px; overflow:hidden;
+    box-shadow:var(--shadow);
+    background:#fff;
+    outline:1px solid rgba(26,24,20,.06);
+    transition: box-shadow .25s ease, outline-color .25s ease;
+  }
+  .choice.correct .slide-wrap{ outline:3px solid var(--good); }
+  .choice.wrong .slide-wrap{ outline:3px solid var(--bad); }
+  .locked .choice{ cursor:default; }
+  .locked .choice:hover{ transform:none; }
+  .locked .choice:not(.picked):not(.correct){ opacity:.55; }
+
+  /* shared slide internals */
+  .slide{
+    position:absolute; inset:0;
+    font-family:'Inter', sans-serif;
+    color:#222;
+  }
+  .slide .pgnum{
+    position:absolute; right:16px; bottom:12px;
+    font-size:9px; color:#bbb; letter-spacing:.1em;
+  }
+
+  /* ========= Feedback panel ========= */
+  .feedback{
+    margin-top:32px; display:none;
+    background:var(--ink); color:var(--paper);
+    border-radius:6px; padding:28px 32px;
+    display:grid; grid-template-columns: 1fr auto; gap:24px;
+    align-items:center;
+    transform:translateY(10px); opacity:0;
+    transition: transform .35s ease, opacity .35s ease;
+    pointer-events:none;
+  }
+  .feedback.show{ transform:translateY(0); opacity:1; pointer-events:auto; }
+  .feedback .verdict-tag{
+    font-family:'DM Mono', monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:.18em;
+    color:var(--coral-soft); margin-bottom:8px;
+  }
+  .feedback h3{
+    font-family:'Fraunces', serif; font-weight:500; font-size:24px;
+    margin:0 0 8px; letter-spacing:-.01em;
+  }
+  .feedback p{ margin:0; line-height:1.55; color:#d6cfbe; max-width:62ch; }
+  .feedback .next{
+    background:var(--coral); color:#fff;
+    border:none; padding:14px 24px;
+    font-family:'Inter', sans-serif; font-weight:600; font-size:14px;
+    letter-spacing:.02em; cursor:pointer; border-radius:4px;
+    display:inline-flex; align-items:center; gap:10px;
+    transition: background .2s;
+  }
+  .feedback .next:hover{ background:#bf4730; }
+  .feedback .next svg{ width:14px; height:14px; }
+
+  /* ========= Results ========= */
+  .results{
+    text-align:center; padding:60px 24px;
+  }
+  .results .score-num{
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size:clamp(120px, 18vw, 220px); line-height:1;
+    letter-spacing:-.04em;
+  }
+  .results .score-num em{ color:var(--coral); font-style:italic; }
+  .results .score-of{
+    font-family:'DM Mono', monospace; font-size:14px;
+    letter-spacing:.2em; text-transform:uppercase;
+    color:var(--ink-soft); margin-top:12px;
+  }
+  .results h2{
+    font-family:'Fraunces', serif; font-weight:500;
+    font-size:42px; max-width:18ch; margin:32px auto 12px;
+    line-height:1.1; letter-spacing:-.01em;
+  }
+  .results p{
+    max-width:50ch; margin:0 auto 32px;
+    color:var(--ink-soft); line-height:1.6;
+  }
+  .results button{
+    background:var(--ink); color:var(--paper);
+    border:none; padding:16px 32px; cursor:pointer;
+    font-family:'Inter'; font-weight:600; font-size:14px;
+    letter-spacing:.02em; border-radius:4px;
+  }
+
+  /* responsive */
+  @media (max-width:840px){
+    .pair{ grid-template-columns:1fr; }
+    .qhead{ flex-direction:column; align-items:flex-start; }
+    .qhead .right{ text-align:left; }
+    .feedback{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="mark"><span class="dot"></span> Spot the Better Slide</div>
+  <div class="meta">
+    <div>A graphic design quiz</div>
+    <div class="score">Score · <b id="score">0</b> / <span id="total">6</span></div>
+  </div>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<main class="stage" id="stage"></main>
+
+<!-- Slide templates injected by JS into #stage -->
+
+<script>
+/* ============================================================
+   Each question: principle + slides A & B (HTML for each slide)
+   "good" indicates which side demonstrates the principle well.
+   ============================================================ */
+
+const QUESTIONS = [
+  /* ---------- Q1: ALIGNMENT ---------- */
+  {
+    principle:'Alignment',
+    headline:'Which slide reads as <em>intentional</em>?',
+    blurb:'A consistent invisible grid quietly tells the eye where to land. Misalignment leaks energy on every line.',
+    good:'B',
+    slideA:`
+      <div class="slide" style="background:#fff;">
+        <div style="position:absolute; left:8%; top:18%;
+                    font-family:'Fraunces', serif; font-size:38px;
+                    font-weight:600; color:#222; line-height:1.05;">
+          Q3 Customer<br/>Insights Report
+        </div>
+        <div style="position:absolute; left:14%; top:48%;
+                    font-size:14px; color:#666; max-width:55%; line-height:1.5;">
+          A summary of recent interviews, surveys, and behaviors observed across our top accounts.
+        </div>
+        <div style="position:absolute; right:6%; top:9%;
+                    font-family:'DM Mono', monospace; font-size:10px;
+                    color:#999; letter-spacing:.15em;">PREPARED · OCT 2026</div>
+        <div style="position:absolute; right:11%; top:63%;
+                    width:84px; height:84px; border-radius:50%;
+                    background:#dfe9f0; display:grid; place-items:center;
+                    font-family:'Fraunces', serif; font-size:30px; color:#3b6e8f;">42</div>
+        <div style="position:absolute; left:7%; bottom:8%;
+                    font-size:11px; color:#aaa;">acme research group</div>
+        <div class="pgnum">03</div>
+      </div>
+    `,
+    slideB:`
+      <div class="slide" style="background:#fff;">
+        <div style="position:absolute; left:9%; top:14%; right:9%;
+                    font-family:'DM Mono', monospace; font-size:10px;
+                    color:#999; letter-spacing:.18em;
+                    display:flex; justify-content:space-between;">
+          <span>ACME RESEARCH GROUP</span><span>OCT 2026 · 03</span>
+        </div>
+        <div style="position:absolute; left:9%; top:24%;
+                    font-family:'Fraunces', serif; font-size:38px;
+                    font-weight:600; color:#222; line-height:1.05;
+                    letter-spacing:-.01em;">
+          Q3 Customer<br/>Insights Report
+        </div>
+        <div style="position:absolute; left:9%; top:55%;
+                    font-size:14px; color:#555; max-width:46%; line-height:1.55;">
+          A summary of recent interviews, surveys, and behaviors observed across our top accounts.
+        </div>
+        <div style="position:absolute; right:9%; top:55%;
+                    width:120px; height:120px; border-radius:50%;
+                    background:#dfe9f0; display:grid; place-items:center;
+                    font-family:'Fraunces', serif; font-size:48px; color:#3b6e8f;">42</div>
+        <div style="position:absolute; right:9%; top:78%;
+                    width:120px; text-align:center;
+                    font-family:'DM Mono', monospace; font-size:9px;
+                    color:#888; letter-spacing:.15em;">INTERVIEWS</div>
+      </div>
+    `,
+    explainGood:`Slide B aligns to a clean grid: the eyebrow, headline, body, and stat all share consistent edges. Your eye moves down a single column instead of zig-zagging.`,
+    explainBad:`Slide A floats elements at random vertical and horizontal positions. The header sits left, the body indents inward, the stat hangs off the edge. Each new line forces the eye to reorient.`
+  },
+
+  /* ---------- Q2: CONTRAST ---------- */
+  {
+    principle:'Contrast',
+    headline:'Which slide can you actually <em>read</em>?',
+    blurb:'If the eye has to work to separate text from background, the message is already lost.',
+    good:'A',
+    slideA:`
+      <div class="slide" style="background:#0e2a3b;">
+        <div style="position:absolute; left:9%; top:18%;
+                    font-family:'DM Mono', monospace; font-size:11px;
+                    color:#ffb78a; letter-spacing:.2em;">PRINCIPLE 02</div>
+        <div style="position:absolute; left:9%; top:26%; right:9%;
+                    font-family:'Fraunces', serif; font-size:46px;
+                    font-weight:500; color:#ffffff; line-height:1.05;
+                    letter-spacing:-.01em;">
+          Make the important<br/>thing impossible<br/>to miss.
+        </div>
+        <div style="position:absolute; left:9%; top:78%;
+                    font-size:13px; color:#a8c5d6;">Visual hierarchy starts with contrast.</div>
+      </div>
+    `,
+    slideB:`
+      <div class="slide" style="background:#e8f0f5;">
+        <div style="position:absolute; left:9%; top:18%;
+                    font-family:'DM Mono', monospace; font-size:11px;
+                    color:#d8c6a8; letter-spacing:.2em;">PRINCIPLE 02</div>
+        <div style="position:absolute; left:9%; top:26%; right:9%;
+                    font-family:'Fraunces', serif; font-size:46px;
+                    font-weight:500; color:#c4d3dc; line-height:1.05;
+                    letter-spacing:-.01em;">
+          Make the important<br/>thing impossible<br/>to miss.
+        </div>
+        <div style="position:absolute; left:9%; top:78%;
+                    font-size:13px; color:#cfd9df;">Visual hierarchy starts with contrast.</div>
+      </div>
+    `,
+    explainGood:`Slide A uses high contrast — bright text on a deep field — so the headline reads instantly, even from the back of a room.`,
+    explainBad:`Slide B has the same words but pale-on-pale tones drop the contrast ratio below readable. The slide looks "designed" but communicates almost nothing.`
+  },
+
+  /* ---------- Q3: HIERARCHY ---------- */
+  {
+    principle:'Hierarchy',
+    headline:'Where do your eyes go <em>first</em>?',
+    blurb:'A good slide has a clear winner. Without size, weight, or color directing attention, the audience picks for themselves — and they often pick wrong.',
+    good:'B',
+    slideA:`
+      <div class="slide" style="background:#fff;">
+        <div style="position:absolute; left:9%; top:14%; right:9%;
+                    font-family:'Inter'; font-size:18px; color:#333; line-height:1.55;">
+          <div style="margin-bottom:14px;">Annual revenue grew to $4.2M this year, marking our strongest performance to date.</div>
+          <div style="margin-bottom:14px;">Customer count increased 38% year over year.</div>
+          <div style="margin-bottom:14px;">Net retention held steady at 112%, in line with last quarter.</div>
+          <div style="margin-bottom:14px;">Average deal size moved from $8,400 to $11,200.</div>
+          <div>Team headcount grew from 24 to 41 across all functions.</div>
+        </div>
+      </div>
+    `,
+    slideB:`
+      <div class="slide" style="background:#fff;">
+        <div style="position:absolute; left:9%; top:18%;
+                    font-family:'DM Mono', monospace; font-size:11px;
+                    color:#999; letter-spacing:.2em;">ANNUAL REVENUE</div>
+        <div style="position:absolute; left:9%; top:26%;
+                    font-family:'Fraunces', serif; font-size:128px;
+                    font-weight:500; color:#222; line-height:.9;
+                    letter-spacing:-.04em;">
+          $4.2M
+          <span style="font-size:36px; color:#d8553b; vertical-align:top; margin-left:4px;">↑</span>
+        </div>
+        <div style="position:absolute; left:9%; top:74%; right:9%;
+                    font-size:14px; color:#555; line-height:1.55; max-width:52ch;">
+          Our strongest year on record — driven by 38% growth in customer count and a step-change in average deal size.
+        </div>
+      </div>
+    `,
+    explainGood:`Slide B picks one number and lets it dominate. Everything else supports the headline. You know in half a second what the slide is about.`,
+    explainBad:`Slide A treats every fact equally. With no size or weight changes, your eye flat-scans five lines and remembers none of them.`
+  },
+
+  /* ---------- Q4: WHITESPACE ---------- */
+  {
+    principle:'Whitespace',
+    headline:'Which slide gives the idea <em>room to land</em>?',
+    blurb:'Empty space isn\'t wasted — it directs attention. Cramming the canvas signals "panic", not "thoroughness".',
+    good:'A',
+    slideA:`
+      <div class="slide" style="background:#f3ede0;">
+        <div style="position:absolute; left:50%; top:46%;
+                    transform:translate(-50%,-50%);
+                    text-align:center;
+                    font-family:'Fraunces', serif; font-size:54px;
+                    font-weight:500; color:#1a1814;
+                    letter-spacing:-.02em; line-height:1.1; max-width:80%;">
+          Less, but better.
+        </div>
+        <div style="position:absolute; left:50%; top:66%;
+                    transform:translate(-50%,0);
+                    font-family:'DM Mono', monospace; font-size:11px;
+                    color:#8a8270; letter-spacing:.25em;">— DIETER RAMS</div>
+      </div>
+    `,
+    slideB:`
+      <div class="slide" style="background:#fff; font-size:10px; color:#333;">
+        <div style="position:absolute; left:4%; top:5%; right:4%;
+                    font-family:'Inter'; font-weight:700; font-size:16px;">
+          OUR DESIGN PHILOSOPHY: A COMPREHENSIVE OVERVIEW OF PRINCIPLES, VALUES, METHODS & APPROACHES
+        </div>
+        <div style="position:absolute; left:4%; top:15%; right:50%;
+                    font-size:9px; line-height:1.45;">
+          <b>1. Simplicity</b> — We believe in stripping away the unnecessary so the necessary may speak. Every element on every page must justify its presence through function, beauty, or both. <br/><br/>
+          <b>2. Functionality</b> — Form follows function, but function must also embrace form. The two are inseparable in good design. <br/><br/>
+          <b>3. Honesty</b> — Materials, methods, and intentions must be transparent. <br/><br/>
+          <b>4. Longevity</b> — Trends fade; principles endure. We design for decades, not seasons.
+        </div>
+        <div style="position:absolute; left:52%; top:15%; right:4%;
+                    font-size:9px; line-height:1.45;">
+          <b>5. Detail</b> — Care for the smallest things signals respect for the user. <br/><br/>
+          <b>6. Environment</b> — Design must answer to its context, not impose upon it. <br/><br/>
+          <b>7. Innovation</b> — But only when innovation serves use, not novelty. <br/><br/>
+          <b>8. Restraint</b> — The most powerful word in our vocabulary is "no." <br/><br/>
+          <b>9. Aesthetics</b> — Beauty is not a luxury; it is a baseline.<br/><br/>
+          <b>10. Iteration</b> — Nothing is final. Everything can be refined.
+        </div>
+        <div style="position:absolute; left:4%; bottom:6%; right:4%;
+                    font-size:8px; color:#888; border-top:1px solid #ccc; padding-top:4px;">
+          Source: internal handbook, v3.2.1 · adapted from D. Rams' Ten Principles · prepared for the Q4 all-hands review
+        </div>
+      </div>
+    `,
+    explainGood:`Slide A uses 80% of its space as breathing room. The single line lands with weight precisely because nothing else competes with it.`,
+    explainBad:`Slide B treats the slide as a document. By the time the eye finishes scanning, the speaker has moved on. Whitespace would have helped the audience hear the actual point.`
+  },
+
+  /* ---------- Q5: TYPOGRAPHY ---------- */
+  {
+    principle:'Typography',
+    headline:'Which slide picked its <em>fonts</em> with care?',
+    blurb:'Two typefaces, used well, look composed. Five typefaces, even good ones, look like a ransom note.',
+    good:'B',
+    slideA:`
+      <div class="slide" style="background:#fffbe6;">
+        <div style="position:absolute; left:8%; top:12%;
+                    font-family:'Comic Sans MS', cursive; font-size:34px;
+                    color:#c0392b; font-weight:bold;">
+          Welcome to Q4!! 🎉
+        </div>
+        <div style="position:absolute; left:8%; top:30%;
+                    font-family:'Times New Roman', serif; font-size:18px;
+                    color:#2c3e50; font-style:italic;">
+          A look back at our biggest quarter ever
+        </div>
+        <div style="position:absolute; left:8%; top:46%; right:8%;
+                    font-family:'Courier New', monospace; font-size:14px;
+                    color:#16a085;">
+          &gt; Revenue: up 42%
+        </div>
+        <div style="position:absolute; left:8%; top:58%; right:8%;
+                    font-family:'Impact', sans-serif; font-size:24px;
+                    color:#8e44ad; letter-spacing:.04em;">
+          NEW CUSTOMERS: 312
+        </div>
+        <div style="position:absolute; left:8%; top:74%;
+                    font-family:'Papyrus', fantasy; font-size:16px;
+                    color:#d35400;">
+          ~ See you at the off-site ~
+        </div>
+      </div>
+    `,
+    slideB:`
+      <div class="slide" style="background:#faf6ec;">
+        <div style="position:absolute; left:9%; top:16%;
+                    font-family:'DM Mono', monospace; font-size:11px;
+                    color:#a08a5e; letter-spacing:.2em;">Q4 · IN REVIEW</div>
+        <div style="position:absolute; left:9%; top:24%; right:9%;
+                    font-family:'Fraunces', serif; font-size:46px;
+                    font-weight:500; color:#1a1814; line-height:1.05;
+                    letter-spacing:-.01em;">
+          A look back at our<br/>biggest quarter ever.
+        </div>
+        <div style="position:absolute; left:9%; top:62%;
+                    font-family:'Inter'; font-size:14px; color:#5a5347;
+                    line-height:1.6; max-width:48ch;">
+          Revenue grew 42% on the back of 312 new customers — our highest acquisition month on record.
+        </div>
+        <div style="position:absolute; left:9%; bottom:9%;
+                    font-family:'DM Mono', monospace; font-size:10px;
+                    color:#a08a5e; letter-spacing:.2em;">— SEE YOU AT THE OFF-SITE</div>
+      </div>
+    `,
+    explainGood:`Slide B uses just two families: a serif for emphasis and a sans for body. The mono accent ties everything together. The result feels considered.`,
+    explainBad:`Slide A throws five unrelated typefaces at one slide. Each one fights the others for attention; nothing wins.`
+  },
+
+  /* ---------- Q6: COLOR ---------- */
+  {
+    principle:'Color',
+    headline:'Which slide has a <em>palette</em>, not a paint store?',
+    blurb:'Restraint reads as confidence. A controlled palette of two or three colors lets one of them carry meaning.',
+    good:'A',
+    slideA:`
+      <div class="slide" style="background:#f5efe2;">
+        <div style="position:absolute; left:9%; top:16%;
+                    font-family:'DM Mono', monospace; font-size:11px;
+                    color:#9c8d6b; letter-spacing:.2em;">PIPELINE BY STAGE</div>
+        <div style="position:absolute; left:9%; top:24%;
+                    font-family:'Fraunces', serif; font-size:34px;
+                    font-weight:500; color:#1a1814; line-height:1.1;">
+          Most of the value sits in negotiation.
+        </div>
+        <!-- bars -->
+        <div style="position:absolute; left:9%; top:54%; right:9%; display:flex; align-items:flex-end; gap:18px; height:30%;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:30%; background:#d6c9a8; border-radius:2px 2px 0 0;"></div>
+            <div style="font-family:'DM Mono';font-size:10px;color:#9c8d6b;letter-spacing:.1em;">LEAD</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:55%; background:#d6c9a8; border-radius:2px 2px 0 0;"></div>
+            <div style="font-family:'DM Mono';font-size:10px;color:#9c8d6b;letter-spacing:.1em;">QUAL.</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:95%; background:#d8553b; border-radius:2px 2px 0 0;"></div>
+            <div style="font-family:'DM Mono';font-size:10px;color:#d8553b;letter-spacing:.1em;font-weight:600;">NEGOT.</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:40%; background:#d6c9a8; border-radius:2px 2px 0 0;"></div>
+            <div style="font-family:'DM Mono';font-size:10px;color:#9c8d6b;letter-spacing:.1em;">CLOSE</div>
+          </div>
+        </div>
+      </div>
+    `,
+    slideB:`
+      <div class="slide" style="background:linear-gradient(135deg,#ffe4e1,#e1f5ff,#fff5cc);">
+        <div style="position:absolute; left:9%; top:16%;
+                    font-family:'Inter'; font-weight:800; font-size:13px;
+                    color:#ff00aa; letter-spacing:.1em;">PIPELINE BY STAGE</div>
+        <div style="position:absolute; left:9%; top:24%;
+                    font-family:'Inter'; font-size:34px; font-weight:800;
+                    color:#0066ff; line-height:1.1;">
+          Most of the value sits in negotiation.
+        </div>
+        <div style="position:absolute; left:9%; top:54%; right:9%; display:flex; align-items:flex-end; gap:18px; height:30%;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:30%; background:#00d084; border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:10px;color:#00d084;font-weight:700;">LEAD</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:55%; background:#ff8c00; border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:10px;color:#ff8c00;font-weight:700;">QUAL.</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:95%; background:#aa00ff; border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:10px;color:#aa00ff;font-weight:700;">NEGOT.</div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:100%; height:40%; background:#ff0066; border-radius:2px 2px 0 0;"></div>
+            <div style="font-size:10px;color:#ff0066;font-weight:700;">CLOSE</div>
+          </div>
+        </div>
+      </div>
+    `,
+    explainGood:`Slide A picks one accent (coral) and uses it to highlight the bar that matters. The eye is told exactly where to look.`,
+    explainBad:`Slide B gives every bar a unique loud color and adds a gradient background. Without a hierarchy, no single element is "the answer".`
+  }
+];
+
+/* ============================================================
+   Render + state
+   ============================================================ */
+const stage = document.getElementById('stage');
+const progressEl = document.getElementById('progress');
+const scoreEl = document.getElementById('score');
+const totalEl = document.getElementById('total');
+
+let qIndex = 0;
+let score = 0;
+let answered = false;
+
+totalEl.textContent = QUESTIONS.length;
+
+function renderProgress(){
+  progressEl.innerHTML = '';
+  QUESTIONS.forEach((_,i)=>{
+    const s = document.createElement('span');
+    if(i < qIndex) s.classList.add('done');
+    if(i === qIndex) s.classList.add('cur');
+    progressEl.appendChild(s);
+  });
+}
+
+function renderQuestion(){
+  answered = false;
+  renderProgress();
+  const q = QUESTIONS[qIndex];
+
+  stage.innerHTML = `
+    <div class="qhead">
+      <div class="left">
+        <div class="eyebrow">Question ${String(qIndex+1).padStart(2,'0')} · of ${String(QUESTIONS.length).padStart(2,'0')}</div>
+        <h1>${q.headline}</h1>
+      </div>
+      <div class="right">
+        <span class="principle">${q.principle}</span>
+        <div>${q.blurb}</div>
+      </div>
+    </div>
+
+    <div class="pair" id="pair">
+      <div class="choice" data-choice="A">
+        <div class="label">
+          <span class="key">A</span><span>Option A</span>
+          <span class="verdict"></span>
+        </div>
+        <div class="slide-wrap">${q.slideA}</div>
+      </div>
+      <div class="choice" data-choice="B">
+        <div class="label">
+          <span class="key">B</span><span>Option B</span>
+          <span class="verdict"></span>
+        </div>
+        <div class="slide-wrap">${q.slideB}</div>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback">
+      <div>
+        <div class="verdict-tag" id="verdict-tag">— FEEDBACK</div>
+        <h3 id="feedback-title"></h3>
+        <p id="feedback-body"></p>
+      </div>
+      <button class="next" id="next">
+        <span id="next-label">Next question</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  `;
+
+  document.querySelectorAll('.choice').forEach(el=>{
+    el.addEventListener('click', ()=> handleChoice(el.dataset.choice));
+  });
+  document.getElementById('next').addEventListener('click', advance);
+}
+
+function handleChoice(letter){
+  if(answered) return;
+  answered = true;
+  const q = QUESTIONS[qIndex];
+  const correct = (letter === q.good);
+  if(correct) score++;
+  scoreEl.textContent = score;
+
+  const pair = document.getElementById('pair');
+  pair.classList.add('locked');
+
+  document.querySelectorAll('.choice').forEach(el=>{
+    const isCorrect = el.dataset.choice === q.good;
+    const isPicked = el.dataset.choice === letter;
+    if(isPicked) el.classList.add('picked');
+    if(isCorrect) el.classList.add('correct');
+    if(isPicked && !isCorrect) el.classList.add('wrong');
+
+    const verd = el.querySelector('.verdict');
+    if(isCorrect) verd.textContent = 'Better choice ✓';
+    else if(isPicked && !isCorrect) verd.textContent = 'Not quite ✗';
+  });
+
+  const fb = document.getElementById('feedback');
+  document.getElementById('verdict-tag').textContent =
+    correct ? '— NICE EYE' : '— TAKE ANOTHER LOOK';
+  document.getElementById('feedback-title').textContent =
+    correct
+      ? `You spotted the ${q.principle.toLowerCase()} problem.`
+      : `Slide ${q.good} demonstrates ${q.principle.toLowerCase()} better.`;
+  const goodText = q.explainGood;
+  const badText = q.explainBad;
+  document.getElementById('feedback-body').innerHTML =
+    `${goodText} <br/><br/><span style="color:#a8a08c;">${badText}</span>`;
+
+  if(qIndex === QUESTIONS.length - 1){
+    document.getElementById('next-label').textContent = 'See your score';
+  }
+  setTimeout(()=> fb.classList.add('show'), 80);
+}
+
+function advance(){
+  qIndex++;
+  if(qIndex >= QUESTIONS.length){
+    renderResults();
+  } else {
+    renderQuestion();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+function renderResults(){
+  progressEl.innerHTML = '';
+  QUESTIONS.forEach(()=>{
+    const s = document.createElement('span'); s.classList.add('done'); progressEl.appendChild(s);
+  });
+  let title, p;
+  const ratio = score / QUESTIONS.length;
+  if(ratio === 1){ title = 'A trained eye.'; p = 'You called every shot. You\'ve internalized the basics — alignment, contrast, hierarchy, whitespace, type, and color all clicked.'; }
+  else if(ratio >= .7){ title = 'You\'ve got the instinct.'; p = 'Strong run. The principles are clearly in your toolkit — review the ones you missed and you\'re bulletproof.'; }
+  else if(ratio >= .4){ title = 'A foundation worth building on.'; p = 'You\'re reading slides for content but not yet for craft. The good news: every principle here is a habit you can practice into your work.'; }
+  else { title = 'Worth another pass.'; p = 'These six principles — alignment, contrast, hierarchy, whitespace, typography, color — are the floor of slide design. Take another look and try again.'; }
+
+  stage.innerHTML = `
+    <div class="results">
+      <div class="score-num"><em>${score}</em></div>
+      <div class="score-of">out of ${QUESTIONS.length}</div>
+      <h2>${title}</h2>
+      <p>${p}</p>
+      <button onclick="qIndex=0;score=0;scoreEl.textContent=0;renderQuestion();">Take it again</button>
+    </div>
+  `;
+}
+
+renderQuestion();
+</script>
+
+</body>
+</html>
