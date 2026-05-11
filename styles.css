@@ -111,12 +111,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .logo {
   font-family: var(--display-font);
   font-size: 26px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
   display: inline-flex;
 }
-.logo__ppt { color: var(--accent); font-style: italic; }
+.logo__ppt { color: var(--accent); }
 .logo__vibe { color: var(--ink); }
 
 .nav__links {
