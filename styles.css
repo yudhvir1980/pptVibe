@@ -92,17 +92,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* ───────────── Nav ───────────── */
 .nav {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 64px;
-  padding: 20px 32px;
   position: sticky;
   top: 0;
   background: color-mix(in oklab, var(--bg) 92%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--rule);
   z-index: 100;
+}
+.nav__inner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 64px;
+  padding: 20px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 .logo {
   font-family: var(--display-font);
@@ -745,7 +749,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .section-head, .how__head, .packs__grid, .today, .footer { padding-left: 32px; padding-right: 32px; }
   .section-head { grid-template-columns: 1fr; gap: 16px; }
   .today { grid-template-columns: 1fr; gap: 48px; padding-top: 72px; padding-bottom: 72px; }
-  .nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; gap: 24px; }
+  .nav__inner { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; gap: 24px; }
   .nav__links { display: none; }
 }
 

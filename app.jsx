@@ -325,15 +325,17 @@ const TodayCard = () => (
 // ───────────────────── Nav / Footer ─────────────────────
 const Nav = ({ onTweaksToggle }) => (
   <header className="nav">
-    <a href="#" className="logo">
-      <span className="logo__ppt">ppt</span><span className="logo__vibe">Vibe</span>
-    </a>
-    <nav className="nav__links">
-      <a href="#how">How it works</a>
-      <a href="#packs">Quiz packs</a>
-      <a href="#">Critiques</a>
-    </nav>
-    <a href="#hero" className="nav__cta">Start the quiz</a>
+    <div className="nav__inner">
+      <a href="#" className="logo">
+        <span className="logo__ppt">ppt</span><span className="logo__vibe">Vibe</span>
+      </a>
+      <nav className="nav__links">
+        <a href="#how">How it works</a>
+        <a href="#packs">Quiz packs</a>
+        <a href="#">Critiques</a>
+      </nav>
+      <a href="#hero" className="nav__cta">Start the quiz</a>
+    </div>
   </header>
 );
 
