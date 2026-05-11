@@ -372,6 +372,7 @@ const Hero = () => (
         Two slides. One is sharper. Pick the better one, read the
         one-line critique, do it again tomorrow. That's the whole product.
       </p>
+      <a href="#packs" className="btn-primary" style={{ marginBottom: '36px' }}>Start Quiz →</a>
       <div className="hero__meta">
         <div className="hero__meta-item"><strong>32</strong> questions</div>
         <div className="hero__meta-item"><strong>4</strong> packs</div>
