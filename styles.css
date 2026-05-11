@@ -109,7 +109,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin: 0 auto;
 }
 .logo {
-  font-family: var(--display-font);
+  font-family: 'Playfair Display', serif;
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.02em;
