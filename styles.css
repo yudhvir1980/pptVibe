@@ -109,9 +109,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin: 0 auto;
 }
 .logo {
-  font-family: 'Fraunces', serif;
+  font-family: 'Cormorant', serif;
   font-size: 26px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1;
   display: inline-flex;
