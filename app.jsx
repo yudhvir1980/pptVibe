@@ -363,7 +363,7 @@ const Hero = () => (
     <div className="hero__left">
       <div className="mono-label hero__eyebrow">
         <span className="hero__eyebrow-rule" />
-        Daily design quiz · No 27
+        Daily Quiz
       </div>
       <h1 className="hero__h1">
         Train your eye for <em>better</em> slides.
