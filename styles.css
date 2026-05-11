@@ -110,7 +110,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .logo {
   font-family: var(--display-font);
-  font-size: 26px;
+  font-size: 36px;
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
